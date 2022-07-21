@@ -5,6 +5,14 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarsRovers.ConsoleApp", "MarsRovers.ConsoleApp\MarsRovers.ConsoleApp.csproj", "{002E5220-0591-4D18-A35C-CB64BA52EBF2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarsRovers.Domain", "MarsRovers.Domain\MarsRovers.Domain.csproj", "{8B7845E1-D368-4DAF-A2FC-2AE291DF37EE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3F4E067F-46B1-4716-A3AA-AD156874B313}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +23,10 @@ Global
 		{002E5220-0591-4D18-A35C-CB64BA52EBF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{002E5220-0591-4D18-A35C-CB64BA52EBF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{002E5220-0591-4D18-A35C-CB64BA52EBF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B7845E1-D368-4DAF-A2FC-2AE291DF37EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B7845E1-D368-4DAF-A2FC-2AE291DF37EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B7845E1-D368-4DAF-A2FC-2AE291DF37EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B7845E1-D368-4DAF-A2FC-2AE291DF37EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
