@@ -4,5 +4,5 @@ public enum RoverCommand
 {
   TurnLeft,
   TurnRight,
-  Move
+  MoveForward
 }

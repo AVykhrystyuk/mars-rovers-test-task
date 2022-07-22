@@ -2,7 +2,7 @@
 
 namespace MarsRovers.ConsoleApp;
 
-internal class InputOutput
+public static class InputOutput
 {
   public static List<RoverCommand> ParseMovementPlan(string input) =>
     input
@@ -10,8 +10,8 @@ internal class InputOutput
       {
         'L' => RoverCommand.TurnLeft,
         'R' => RoverCommand.TurnRight,
-        'M' => RoverCommand.Move,
-        _ => throw new FormatException($"Unsupported movement plan command ('{c}')"),
+        'M' => RoverCommand.MoveForward,
+        _ => throw new FormatException($"'{c}' is unsupported movement plan command. Please use the supported commands (L, R, M)."),
       })
       .ToList();
 
@@ -31,7 +31,7 @@ internal class InputOutput
     return $"{point.X} {point.Y} {directionCharacter}";
   }
 
-  public static Location ParseStartingPosition(string input)
+  public static (Point point, CardinalDirection direction) ParseStartingPosition(string input)
   {
     var parts = input.Split(" ");
     var point = ParsePoint(parts);
@@ -44,7 +44,7 @@ internal class InputOutput
       "W" => CardinalDirection.West,
       _ => throw new FormatException($"Unknown cardinal direction ('{directionCharacter}')"),
     };
-    return new Location(point, direction);
+    return (point, direction);
   }
 
   public static Point ParsePoint(string input) =>
@@ -56,4 +56,13 @@ internal class InputOutput
     var y = int.Parse(parts.ElementAtOrDefault(1) ?? "");
     return new Point(x, y);
   }
+
+  public static void ThrowIfLessThan(string name, int value, int min)
+  {
+    if (value < min)
+      throw new ArgumentException($"{name} ({value}) cannot be less than {min}");
+  }
+
+  public static void PrintError(Exception exception) => 
+    Console.WriteLine($"Error: {exception.Message}");
 }

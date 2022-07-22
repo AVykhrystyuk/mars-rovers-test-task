@@ -2,7 +2,6 @@
 
 using MarsRovers.Domain;
 
-using static DefaultInputs;
 using static Console;
 using static InputOutput;
 
@@ -16,24 +15,25 @@ public class Application
 
   public void Run()
   {
-    var upperRightCoordinate = GetUpperRightCoordinate(); // TODO:
+    var plateau = Plateau.From(GetUpperRightCoordinate());
     var totalNumberOfRovers = GetTotalNumberOfRovers();
 
     for (int roverNumber = 1; roverNumber <= totalNumberOfRovers; roverNumber++)
     {
-      var startingPosition = GetStartingPosition(roverNumber);
+      var startingPosition = GetStartingPosition(roverNumber, plateau);
       var movementPlan = GetMovementPlan(roverNumber);
 
-      var controller = new RoverController(startingPosition);
+      var rover = new RoverSimulator($"Rover {roverNumber}", startingPosition);
 
       try
       {
-        var resultedPosition = controller.Execute(movementPlan);
-        WriteLine($"Rover {roverNumber} Output: {PositionToString(resultedPosition)}");
+        var roverPosition = rover.Run(movementPlan);
+        WriteLine($"{rover.Name} Output: {PositionToString(roverPosition)}");
+        plateau.MarkPointAsTaken(roverPosition.Point, rover.Name);
       }
       catch (Exception ex)
       {
-        WriteLine($"Rover {roverNumber} Error: {ex.Message}");
+        PrintError(ex);
         return;
       }
     }
@@ -41,28 +41,48 @@ public class Application
 
   private List<RoverCommand> GetMovementPlan(int roverNumber) => TryParseInput(() =>
   {
-    Write($"Rover {roverNumber} Movement Plan (Default: '{MovementPlan}'): ");
-    return ParseMovementPlan(ReadLine().IfEmpty(MovementPlan));
+    var defaultValue = DefaultInputs.MovementPlan;
+    Write($"Rover {roverNumber} Movement Plan (Default: '{defaultValue}'): ");
+    return ParseMovementPlan(ReadLine().IfEmpty(defaultValue).Trim());
   });
 
-  private Location GetStartingPosition(int roverNumber) => TryParseInput(() =>
+  private Location GetStartingPosition(int roverNumber, Plateau plateau) => TryParseInput(() =>
   {
-    Write($"Rover {roverNumber} Starting Position (Default: '{StartingPosition}'): ");
-    return ParseStartingPosition(ReadLine().IfEmpty(StartingPosition));
+    var defaultValue = DefaultInputs.StartingPosition;
+    Write($"Rover {roverNumber} Starting Position (Default: '{defaultValue}'): ");
+    var (point, direction) = ParseStartingPosition(ReadLine().IfEmpty(defaultValue).Trim());
+
+    ThrowIfLessThan("X", point.X, 0);
+    ThrowIfLessThan("Y", point.Y, 0);
+
+    if (plateau.IsPointTaken(point, out var takenBy))
+      throw new ArgumentException($"Cannot start at {point} as this location is already taken by '{takenBy}'");
+
+    return new Location(point, direction, plateau);
   });
 
   private int GetTotalNumberOfRovers() => TryParseInput(() =>
   {
-    Write($"Enter Number Of Rovers Deployed (Default: '{TotalNumberOfRovers}'): ");
-    return int.Parse(ReadLine().IfEmpty(TotalNumberOfRovers));
+    var defaultValue = DefaultInputs.TotalNumberOfRovers;
+    Write($"Enter Number Of Rovers Deployed (Default: '{defaultValue}'): ");
+    var number = int.Parse(ReadLine().IfEmpty(defaultValue).Trim());
+
+    ThrowIfLessThan("Number Of Rovers", number, 1);
+
+    return number;
   });
 
   private Point GetUpperRightCoordinate() => TryParseInput(() =>
   {
-    Write($"Enter Graph Upper Right Coordinate (Default: '{UpperRightCoordinate}'): ");
-    return ParsePoint(ReadLine().IfEmpty(UpperRightCoordinate));
-  });
+    var defaultValue = DefaultInputs.UpperRightCoordinate;
+    Write($"Enter Graph Upper Right Coordinate (Default: '{defaultValue}'): ");
+    var point = ParsePoint(ReadLine().IfEmpty(defaultValue).Trim());
 
+    ThrowIfLessThan("X", point.X, 1);
+    ThrowIfLessThan("Y", point.Y, 1);
+
+    return point;
+  });
 
   private T TryParseInput<T>(Func<T> parse)
   {
@@ -74,7 +94,7 @@ public class Application
       }
       catch (Exception ex)
       {
-        WriteLine(ex.Message);
+        PrintError(ex);
       }
     }
 
