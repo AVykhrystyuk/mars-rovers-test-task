@@ -1,24 +1,26 @@
-﻿namespace MarsRovers.ConsoleApp;
+﻿using MarsRovers.Domain;
 
-using MarsRovers.Domain;
+namespace MarsRovers.ConsoleApp;
 
-using static Console;
-using static InputOutput;
+using static ParseFormat;
 
 public class Application
 {
-  private readonly IService _service;
-  private readonly int maxParseRetryCount = 3;
+  private readonly IConsole _console;
+  private readonly int _maxParseRetryCount;
 
-  public Application(IService service) =>
-    _service = service;
+  public Application(IConsole console, int maxParseRetryCount = 2) 
+  {
+    _console = console;
+    _maxParseRetryCount = maxParseRetryCount;
+  }
 
   public void Run()
   {
     var plateau = Plateau.From(GetUpperRightCoordinate());
     var totalNumberOfRovers = GetTotalNumberOfRovers();
 
-    for (int roverNumber = 1; roverNumber <= totalNumberOfRovers; roverNumber++)
+    for (var roverNumber = 1; roverNumber <= totalNumberOfRovers; roverNumber++)
     {
       var startingPosition = GetStartingPosition(roverNumber, plateau);
       var movementPlan = GetMovementPlan(roverNumber);
@@ -28,12 +30,12 @@ public class Application
       try
       {
         var roverPosition = rover.Run(movementPlan);
-        WriteLine($"{rover.Name} Output: {PositionToString(roverPosition)}");
         plateau.MarkPointAsTaken(roverPosition.Point, rover.Name);
+        _console.WriteLine($"{rover.Name} Output: {PositionToString(roverPosition)}");
       }
       catch (Exception ex)
       {
-        PrintError(ex);
+        _console.WriteError(ex);
         return;
       }
     }
@@ -42,15 +44,15 @@ public class Application
   private List<RoverCommand> GetMovementPlan(int roverNumber) => TryParseInput(() =>
   {
     var defaultValue = DefaultInputs.MovementPlan;
-    Write($"Rover {roverNumber} Movement Plan (Default: '{defaultValue}'): ");
-    return ParseMovementPlan(ReadLine().IfEmpty(defaultValue).Trim());
+    var response = _console.Prompt($"Rover {roverNumber} Movement Plan (Default: '{defaultValue}'): ").Trim();
+    return ParseMovementPlan(response.IfEmpty(defaultValue));
   });
 
   private Location GetStartingPosition(int roverNumber, Plateau plateau) => TryParseInput(() =>
   {
     var defaultValue = DefaultInputs.StartingPosition;
-    Write($"Rover {roverNumber} Starting Position (Default: '{defaultValue}'): ");
-    var (point, direction) = ParseStartingPosition(ReadLine().IfEmpty(defaultValue).Trim());
+    var response = _console.Prompt($"Rover {roverNumber} Starting Position (Default: '{defaultValue}'): ").Trim();
+    var (point, direction) = ParseStartingPosition(response.IfEmpty(defaultValue));
 
     ThrowIfLessThan("X", point.X, 0);
     ThrowIfLessThan("Y", point.Y, 0);
@@ -64,8 +66,8 @@ public class Application
   private int GetTotalNumberOfRovers() => TryParseInput(() =>
   {
     var defaultValue = DefaultInputs.TotalNumberOfRovers;
-    Write($"Enter Number Of Rovers Deployed (Default: '{defaultValue}'): ");
-    var number = int.Parse(ReadLine().IfEmpty(defaultValue).Trim());
+    var response = _console.Prompt($"Enter Number Of Rovers Deployed (Default: '{defaultValue}'): ").Trim();
+    var number = int.Parse(response.IfEmpty(defaultValue));
 
     ThrowIfLessThan("Number Of Rovers", number, 1);
 
@@ -75,8 +77,8 @@ public class Application
   private Point GetUpperRightCoordinate() => TryParseInput(() =>
   {
     var defaultValue = DefaultInputs.UpperRightCoordinate;
-    Write($"Enter Graph Upper Right Coordinate (Default: '{defaultValue}'): ");
-    var point = ParsePoint(ReadLine().IfEmpty(defaultValue).Trim());
+    var response = _console.Prompt($"Enter Plateau Upper Right Coordinate (Default: '{defaultValue}'): ").Trim();
+    var point = ParsePoint(response.IfEmpty(defaultValue));
 
     ThrowIfLessThan("X", point.X, 1);
     ThrowIfLessThan("Y", point.Y, 1);
@@ -86,7 +88,7 @@ public class Application
 
   private T TryParseInput<T>(Func<T> parse)
   {
-    for (int i = 0; i < maxParseRetryCount; i++)
+    for (var i = 0; i < _maxParseRetryCount + 1; i++)
     {
       try
       {
@@ -94,11 +96,17 @@ public class Application
       }
       catch (Exception ex)
       {
-        PrintError(ex);
+        _console.WriteError(ex);
       }
     }
 
-    throw new Exception($"Maximum number of retries ({maxParseRetryCount}) exceeded while parsing the input");
+    throw new Exception($"Maximum number of retries ({_maxParseRetryCount}) exceeded while parsing the input");
+  }
+
+  private static void ThrowIfLessThan(string name, int value, int min)
+  {
+    if (value < min)
+      throw new ArgumentException($"{name} ({value}) cannot be less than {min}");
   }
 }
 

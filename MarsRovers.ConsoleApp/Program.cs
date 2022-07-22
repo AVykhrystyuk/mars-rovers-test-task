@@ -17,11 +17,5 @@ internal class Program
 
   private static IServiceCollection ConfigureServices(IServiceCollection services) => 
     services
-      .AddTransient<IService, ServiceImpl>();
+      .AddTransient<IConsole, ConsoleImpl>();
 }
-
-[Obsolete]
-public interface IService { }
-
-[Obsolete]
-public class ServiceImpl : IService { }

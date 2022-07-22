@@ -35,7 +35,7 @@ public class Location
     var newPoint = new Point(Point.X + vector.X, Point.Y + vector.Y);
 
     if (!Plateau.Fits(newPoint))
-      throw new ArgumentException($"Can not move beyond the plateau ({newPoint})");
+      throw new ArgumentException($"Cannot move beyond the plateau ({newPoint})");
 
     if (Plateau.IsPointTaken(newPoint, out var takenBy))
       throw new ArgumentException($"Cannot move to {newPoint} as this location is already taken by '{takenBy}'");

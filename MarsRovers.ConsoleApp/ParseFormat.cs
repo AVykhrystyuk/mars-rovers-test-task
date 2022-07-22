@@ -2,7 +2,7 @@
 
 namespace MarsRovers.ConsoleApp;
 
-public static class InputOutput
+public static class ParseFormat
 {
   public static List<RoverCommand> ParseMovementPlan(string input) =>
     input
@@ -35,7 +35,10 @@ public static class InputOutput
   {
     var parts = input.Split(" ");
     var point = ParsePoint(parts);
-    var directionCharacter = parts.ElementAtOrDefault(2);
+    if (parts.Length < 3)
+      throw new FormatException($"Direction is missing");
+
+    var directionCharacter = parts[2];
     var direction = directionCharacter switch
     {
       "N" => CardinalDirection.North,
@@ -56,13 +59,4 @@ public static class InputOutput
     var y = int.Parse(parts.ElementAtOrDefault(1) ?? "");
     return new Point(x, y);
   }
-
-  public static void ThrowIfLessThan(string name, int value, int min)
-  {
-    if (value < min)
-      throw new ArgumentException($"{name} ({value}) cannot be less than {min}");
-  }
-
-  public static void PrintError(Exception exception) => 
-    Console.WriteLine($"Error: {exception.Message}");
 }
