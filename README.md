@@ -1,4 +1,4 @@
-# MarsRovers
+# test-task: MarsRovers
 
 ### Assumptions made:
 1. Unfortunately users tend to make mistakes, so the app tries to reduce the pain of making them:
