@@ -7,6 +7,7 @@
 2. The number of rovers deployed should be provided by users, so the app prompts to enter the number.
 3. Only one rover can be at the same grid point on the plateau at a time.
 4. No rover can go beyond the plateau. 
+5. Integration-tests are more useful than unit-tests here as they help to test the whole use case (a user story)
 
 
 ## TASK SPECIFICATION
