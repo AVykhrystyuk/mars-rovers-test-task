@@ -75,11 +75,11 @@ public class ApplicationIntegrationTests
     var app = new Application(mockConsole.Object, maxParseRetryCount: 0);
 
     // Act
-    var exception = Assert.ThrowsAny<Exception>(() => app.Run());
+    app.Run();
 
     // Assert
-    Assert.StartsWith("Maximum number of retries", exception.Message);
     mockConsole.Verify(c => c.WriteError(It.Is<Exception>(ex => ex.Message.StartsWith("Cannot start at"))), Times.Once());
+    mockConsole.Verify(c => c.WriteError(It.Is<Exception>(ex => ex.Message.StartsWith("Maximum number of retries"))), Times.Once());
   }
 
   [Fact]

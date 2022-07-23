@@ -9,7 +9,7 @@ public class Application
   private readonly IConsole _console;
   private readonly int _maxParseRetryCount;
 
-  public Application(IConsole console, int maxParseRetryCount = 2) 
+  public Application(IConsole console, int maxParseRetryCount = 2)
   {
     _console = console;
     _maxParseRetryCount = maxParseRetryCount;
@@ -17,27 +17,26 @@ public class Application
 
   public void Run()
   {
-    var plateau = Plateau.From(GetUpperRightCoordinate());
-    var totalNumberOfRovers = GetTotalNumberOfRovers();
-
-    for (var roverNumber = 1; roverNumber <= totalNumberOfRovers; roverNumber++)
+    try
     {
-      var startingPosition = GetStartingPosition(roverNumber, plateau);
-      var movementPlan = GetMovementPlan(roverNumber);
+      var plateau = Plateau.From(GetUpperRightCoordinate());
+      var totalNumberOfRovers = GetTotalNumberOfRovers();
 
-      var rover = new RoverSimulator($"Rover {roverNumber}", startingPosition);
-
-      try
+      for (var roverNumber = 1; roverNumber <= totalNumberOfRovers; roverNumber++)
       {
+        var startingPosition = GetStartingPosition(roverNumber, plateau);
+        var movementPlan = GetMovementPlan(roverNumber);
+
+        var rover = new RoverSimulator($"Rover {roverNumber}", startingPosition);
         var roverPosition = rover.Run(movementPlan);
         plateau.MarkPointAsTaken(roverPosition.Point, rover.Name);
         _console.WriteLine($"{rover.Name} Output: {PositionToString(roverPosition)}");
       }
-      catch (Exception ex)
-      {
-        _console.WriteError(ex);
-        return;
-      }
+    }
+    catch (Exception ex)
+    {
+      _console.WriteError(ex);
+      return;
     }
   }
 
